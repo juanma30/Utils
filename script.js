@@ -1,8 +1,8 @@
 const fs = require('fs')
 const path = require('path')
-const reader = require('xlsx')
+const xlsx = require('xlsx')
 
-const PATH_FILE = path.join(__dirname, 'nuevo_issued.csv')
+const PATH_FILE = path.join(__dirname, 'Complemento Carta Porte.csv')
 
 /*
 TODO: Función que devuelve la información 
@@ -13,45 +13,73 @@ const createFile = (info, callback) => {
         if(!error) {
             let contador = 0
             const arrayLines = data.split('\n')
+            const arrayRegistro = []
             const arrayEmpresas = []
             const arrayAsistentes = []
+            const arrayAsis = []
+            const arrayEmp = []
+            const arrayEmpId = []
+
             for(const line in arrayLines) {
                 let tmp = arrayLines[line].split('|')
+                
                 if(contador > 0) {
-                    if(!arrayEmpresas.includes(tmp[9]) && tmp[9] != 'None') {
-                        arrayEmpresas.push(tmp[9])
+                    if(!arrayEmpresas.includes(tmp[2]) && tmp[2] != undefined) {
+                        arrayEmpresas.push(tmp[2])
                     }
 
-                    if(!arrayAsistentes.includes(tmp[3])) {
-                        arrayAsistentes.push(tmp[3])
+                    if(tmp[4] != undefined) {
+                        (!arrayAsistentes.includes(tmp[4])) && (arrayAsistentes.push(tmp[4]));
+                        (!arrayRegistro.includes(tmp[4])) && (arrayRegistro.push(tmp[4]));
+                    }
+
+                    if(tmp[0] != 'no') {
+                        if(!arrayAsis.includes(tmp[4]) && tmp[4] != undefined) {
+                            arrayAsis.push(tmp[4])
+                        }
+                        
+                        if(tmp[2] != undefined) {
+                            (!arrayEmp.includes(tmp[2])) && (arrayEmp.push(tmp[2]));
+                            if(tmp[2] != tmp[10]) {
+                                arrayEmpId.push(tmp[10])
+                            }
+                        }
                     }
                 }
-                (tmp.length > 1) && (contador ++)
+
+                (tmp.length > 1) && (contador ++);
             }
             callback({
                 "info": info,
-                "empresas": arrayEmpresas,
-                "asistentes": arrayAsistentes,
-                "total": contador
+                "empresas": arrayEmpresas.length,
+                "asistentes": arrayAsistentes.length,
+                "registros": arrayRegistro.length,
+                "unicos": {
+                    "asistentes": arrayAsis.length,
+                    "empresas": arrayEmp.length,
+                    "id": arrayEmpId
+                },
+                "total": contador - 1
             })
         }
     })
 }
 
 const info = {
-    "Evento": "The Issue",
+    "Evento": "Complemento Carta Porte",
     "Mes": "Agosto",
-    "Fecha": "03-Agosto-2022",
-    "Semana": 20,
-    "Hora": "10:00 am",
-    "Impartido por": "GS1"
+    "Fecha": "31-Agosto-2022",
+    "Semana": 23,
+    "Hora": "11:30 am",
+    "Impartido por": "Carvajal"
 }
 
 createFile(info, (rs) => {
     //TODO: Funcion para crear un xlsx
     console.time('inicio')
 
-    const data = [{
+    const data = {
+        "#": 1,
         "Evento": rs.info['Evento'],
         "Mes": rs.info['Mes'],
         "Fecha": rs.info['Fecha'],
@@ -59,21 +87,22 @@ createFile(info, (rs) => {
         "Hora": rs.info['Hora'],
         "Impartido por": rs.info['Impartido por'],
         "Registros totales": rs.total,
-        "Registros únicos": rs.total,
-        "Empresas unicas registradas": rs.empresas.length,
-        "Asistentes Totales": 0,
-        "Asistentes únicos": 0,
-        "Empresas unicas asistentes": rs.asistentes.length,
-        "Empresas identificadas (Con ID)": rs.empresas.length,
+        "Registros únicos": rs.registros,
+        "Empresas unicas registradas": rs.empresas,
+        "Asistentes Totales": rs.unicos.asistentes,
+        "Asistentes únicos": rs.unicos.asistentes,
+        "Empresas unicas asistentes": rs.unicos.empresas,
+        "Empresas identificadas (Con ID)": rs.unicos.id.length,
         "Empresas sumadas al indicador": 0
-    }]
+    }
 
-    const sheet = reader.utils.json_to_sheet(data)
+    const sheet = xlsx.utils.json_to_sheet([data])
 
-    const archivo = reader.utils.book_new()
+    const archivo = xlsx.utils.book_new()
 
-    reader.utils.book_append_sheet(archivo, sheet, 'Reporte 2022')
+    xlsx.utils.book_append_sheet(archivo, sheet, 'Reporte 2022')
 
-    reader.writeFile(archivo, path.join(__dirname, 'concentrado_eventos.xlsx'))
+    xlsx.writeFile(archivo, path.join(__dirname, 'concentrado_eventos_n.xlsx'))
+
     console.timeEnd('inicio')
 })
