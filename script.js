@@ -2,10 +2,10 @@ const fs = require('fs')
 const path = require('path')
 const xlsx = require('xlsx')
 
-const PATH_FILE = path.join(__dirname, 'Complemento Carta Porte.csv')
+const PATH_FILE = path.join(__dirname, '10.csv')
 
 /*
-TODO: Función que devuelve la información 
+TODO: Función que devuelve la información
       sobre los conteos de los archivos
 */
 const createFile = (info, callback) => {
@@ -22,7 +22,7 @@ const createFile = (info, callback) => {
 
             for(const line in arrayLines) {
                 let tmp = arrayLines[line].split('|')
-                
+
                 if(contador > 0) {
                     if(!arrayEmpresas.includes(tmp[2]) && tmp[2] != undefined) {
                         arrayEmpresas.push(tmp[2])
@@ -37,7 +37,7 @@ const createFile = (info, callback) => {
                         if(!arrayAsis.includes(tmp[4]) && tmp[4] != undefined) {
                             arrayAsis.push(tmp[4])
                         }
-                        
+
                         if(tmp[2] != undefined) {
                             (!arrayEmp.includes(tmp[2])) && (arrayEmp.push(tmp[2]));
                             if(tmp[2] != tmp[10]) {
@@ -66,12 +66,12 @@ const createFile = (info, callback) => {
 }
 
 const info = {
-    "Evento": "Complemento Carta Porte",
+    "Evento": "10 Tendencias de IA<Plug>PeepOpenara e nuevo retail",
     "Mes": "Agosto",
-    "Fecha": "31-Agosto-2022",
+    "Fecha": "25-Agosto-2022",
     "Semana": 23,
-    "Hora": "11:30 am",
-    "Impartido por": "Carvajal"
+    "Hora": "10:00 am",
+    "Impartido por": "Teamcore"
 }
 
 createFile(info, (rs) => {
